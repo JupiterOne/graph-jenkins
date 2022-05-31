@@ -1,28 +1,24 @@
 # Development
 
-Add details here to give a brief overview of how to work with the provider APIs.
-Please reference any SDKs or API docs used to help build the integration here.
-
-## Prerequisites
-
-Supply details about software or tooling (like maybe Docker or Terraform) that
-is needed for development here.
-
-Please supply references to documentation that details how to install those
-dependencies here.
-
-Tools like Node.js and NPM are already covered in the [README](../README.md) so
-don't bother documenting that here.
+This integration focuses on [Jenkins](https://www.jenkins.io/) and is using
+Jenkins API (JENKINS_URL/.../api/json) for interacting with the Jenkins
+resources.
 
 ## Provider account setup
 
-Please provide information about the steps needed to create an account with a
-provider. Images and references to a provider's documentation is very helpful
-for new developers picking up your work.
+1. Install Jenkins on the local machine/server and take note of the provided
+   domain
+2. Install recommended plugins
+3. Create an admin account on this installation
+4. Install Role-based Authorization Strategy Plugin
+5. Go to Dashboard -> Manage Jenkins -> Configure Global Security and choose
+   Role-Based Strategy for Authorization
+6. Go to Dashboard -> Configure and add a new API Token
 
 ## Authentication
 
-Supply details here for information on how to authenticate with a provider so
-that developers have an idea of what's needed to hit APIs. It may be useful to
-provide explanations for each value specified in the
-[`IntegrationInstanceConfigFieldMap`](../src/config.ts).
+Provide the generated `API_KEY` by the admin account `USER_NAME` , and the
+`HOST_NAME` of the Jenkins installation to the `.env`. You can use
+[`.env.example`](../.env.example) as a reference.
+
+The API Key will be used to authorize requests using Basic Authorization.
