@@ -1,25 +1,68 @@
-// Providers often supply types with their API libraries.
-
-export interface AcmeUser {
+export type JenkinsUser = {
+  lastChange: string | null;
+  project: string | null;
+  user: {
+    absoluteUrl: string;
+    fullName: string;
+  };
   id: string;
-  name: string;
-}
+};
 
-export interface AcmeGroup {
+export type JenkinsJob = {
+  _class: string;
+  name: string;
+  url: string;
+  color: string;
+};
+
+export type JenkinsBuild = {
+  _class: string;
   id: string;
+  url: string;
+  remoteUrl: string;
+  startedByUserId: string;
   name: string;
-  users?: Pick<AcmeUser, 'id'>[];
-}
 
-// Those can be useful to a degree, but often they're just full of optional
-// values. Understanding the response data may be more reliably accomplished by
-// reviewing the API response recordings produced by testing the wrapper client
-// (./client.ts). However, when there are no types provided, it is necessary to define
-// opaque types for each resource, to communicate the records that are expected
-// to come from an endpoint and are provided to iterating functions.
+  actions;
+};
 
-/*
-import { Opaque } from 'type-fest';
-export type AcmeUser = Opaque<any, 'AcmeUser'>;
-export type AcmeGroup = Opaque<any, 'AcmeGroup'>;
-*/
+export type JenkinsRepository = {
+  url: string;
+  name: string;
+};
+
+export type JenkinsRole = {
+  name: string;
+  roleType: string;
+  credentialsProviderManageDomains: string;
+  credentialsProviderView: string;
+  credentialsProviderUpdate: string;
+  credentialsProviderDelete: string;
+  credentialsProviderCreate: string;
+  SCMTag: string;
+  modelViewDelete: string;
+  modelComputerConnect: string;
+  modelRunDelete: string;
+  modelComputerCreate: string;
+  modelViewConfigure: string;
+  modelComputerBuild: string;
+  modelItemConfigure: string;
+  modelHudsonAdminister: string;
+  modelItemCancel: string;
+  modelItemRead: string;
+  modelComputerDelete: string;
+  modelItemBuild: string;
+  modelItemMove: string;
+  modelItemDiscover: string;
+  modelHudsonRead: string;
+  modelItemCreate: string;
+  modelItemWorkspace: string;
+  modelComputerProvision: string;
+  modelRunReplay: string;
+  modelViewRead: string;
+  modelViewCreate: string;
+  modelItemDelete: string;
+  modelComputerConfigure: string;
+  modelComputerDisconnect: string;
+  modelRunUpdate: string;
+};
