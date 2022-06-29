@@ -11,16 +11,16 @@ and this project adheres to
 - Ingest new entities
   - `jenkins_account`
   - `jenkins_build`
-  - `jenkins_project`
+  - `jenkins_job`
   - `jenkins_repository`
   - `jenkins_role`
   - `jenkins_user`
 - Build new relationships
-  - `jenkins_account_has_user`
-  - `jenkins_account_has_project`
-  - `jenkins_account_has_repository`
+  - `jenkins_account_has_job`
   - `jenkins_account_has_role`
-  - `jenkins_user_has_role`
-  - `jenkins_user_has_build`
-  - `jenkins_project_has_build`
+  - `jenkins_account_has_user`
   - `jenkins_build_has_repository`
+  - `jenkins_job_has_build`
+  - `jenkins_job_has_job`
+  - `jenkins_user_assigned_role`
+  - `jenkins_user_has_build`
