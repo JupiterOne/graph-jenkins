@@ -40,6 +40,32 @@ If you need help with this integration, please contact
 5. Go to Dashboard -> Manage Jenkins -> Configure Global Security and choose
    Role-Based Strategy for Authorization
 6. Go to Dashboard -> Configure and add a new API Token
+7. To push data from your Jenkins instance you must run our Docker container in
+   a pipeline. Here is an example:
+
+```
+pipeline {
+    agent {
+        docker { image 'jupiterone/graph-jenkins:<version>' }
+    }
+
+    environment {
+        JUPITERONE_API_KEY = credentials('j1-api-key')
+        JUPITERONE_ACCOUNT = credentials('j1-account')
+        USER_NAME = credentials('jenkins-username')
+        API_KEY   = credentials('jenkins-api-key')
+        HOST_NAME = 'https://<your_hostname>'
+    }
+
+    stages {
+        stage('Collect data') {
+            steps {
+                sh 'cd /opt/jupiterone/integration && ./scripts/collect.sh'
+            }
+        }
+    }
+}
+```
 
 ### In JupiterOne
 
