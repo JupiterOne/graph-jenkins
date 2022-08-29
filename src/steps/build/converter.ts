@@ -10,16 +10,39 @@ export function getBuildKey(id: string): string {
   return `jenkins_build:${id}`;
 }
 
-export function createBuildEntity(build: JenkinsBuild): Entity {
-  const startedByUserId = build.actions[0].causes[0].userId;
-  let remoteUrl;
-  for (const index in build.actions || []) {
-    if (build.actions[index]._class == 'hudson.plugins.git.util.BuildData') {
-      const remoteUrlTemp = build.actions[index].remoteUrls;
-      remoteUrl = remoteUrlTemp;
-      break;
+function getStartedByUserId(build: JenkinsBuild) {
+  for (const action of build.actions) {
+    if (action.causes) {
+      for (const cause of action.causes) {
+        if (
+          cause.shortDescription.includes('Started by user') &&
+          cause.userId
+        ) {
+          return cause.userId;
+        }
+      }
     }
   }
+  return undefined;
+}
+
+function getRemoteUrl(build: JenkinsBuild) {
+  for (const action of build.actions) {
+    if (
+      action._class &&
+      action._class === 'hudson.plugins.git.util.BuildData'
+    ) {
+      if (action.remoteUrls.length > 0) {
+        return action.remoteUrls[0];
+      }
+    }
+  }
+  return undefined;
+}
+
+export function createBuildEntity(build: JenkinsBuild): Entity {
+  const startedByUserId = getStartedByUserId(build);
+  const remoteUrl = getRemoteUrl(build);
 
   return createIntegrationEntity({
     entityData: {
@@ -29,10 +52,10 @@ export function createBuildEntity(build: JenkinsBuild): Entity {
         _class: Entities.BUILD._class,
         _key: getBuildKey(build.url),
         id: build.url,
-        url: build.url,
+        webLink: build.url,
         name: build.url,
-        remoteUrl: remoteUrl,
-        startedByUserId: startedByUserId,
+        remoteUrl,
+        startedByUserId,
       },
     },
   });

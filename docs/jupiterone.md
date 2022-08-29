@@ -89,7 +89,6 @@ The following entities are created:
 | Build      | `jenkins_build`      | `Configuration` |
 | Job        | `jenkins_job`        | `Project`       |
 | Repository | `jenkins_repository` | `Repository`    |
-| Role       | `jenkins_role`       | `AccessRole`    |
 | User       | `jenkins_user`       | `User`          |
 
 ### Relationships
@@ -99,12 +98,10 @@ The following relationships are created:
 | Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
 | --------------------- | --------------------- | --------------------- |
 | `jenkins_account`     | **HAS**               | `jenkins_job`         |
-| `jenkins_account`     | **HAS**               | `jenkins_role`        |
 | `jenkins_account`     | **HAS**               | `jenkins_user`        |
 | `jenkins_build`       | **HAS**               | `jenkins_repository`  |
 | `jenkins_job`         | **HAS**               | `jenkins_build`       |
 | `jenkins_job`         | **HAS**               | `jenkins_job`         |
-| `jenkins_user`        | **ASSIGNED**          | `jenkins_role`        |
 | `jenkins_user`        | **HAS**               | `jenkins_build`       |
 
 <!--

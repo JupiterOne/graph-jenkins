@@ -27,24 +27,4 @@ export const userSpec: StepSpec<IntegrationConfig>[] = [
     dependsOn: ['fetch-account'],
     implemented: true,
   },
-
-  {
-    /**
-     * ENDPOINT: {HOSTNAME}/role-strategy/strategy/getRole?type=${roleType}&roleName=${name}
-     * PATTERN: Fetch Relationships
-     */
-    id: 'build-user-and-role-relationships',
-    name: 'Build User and Role Relationships',
-    entities: [],
-    relationships: [
-      {
-        _type: 'jenkins_user_assigned_role',
-        sourceType: 'jenkins_user',
-        _class: RelationshipClass.ASSIGNED,
-        targetType: 'jenkins_role',
-      },
-    ],
-    dependsOn: ['fetch-users', 'fetch-roles'],
-    implemented: true,
-  },
 ];

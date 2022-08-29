@@ -10,7 +10,10 @@ export function getRepositoryKey(id: string): string {
   return `jenkins_repository:${id}`;
 }
 
-export function createRepositoryEntity(repository: JenkinsRepository): Entity {
+export function createRepositoryEntity(
+  repository: JenkinsRepository,
+  webLink: string,
+): Entity {
   return createIntegrationEntity({
     entityData: {
       source: repository,
@@ -20,6 +23,7 @@ export function createRepositoryEntity(repository: JenkinsRepository): Entity {
         _key: getRepositoryKey(repository.url),
         name: repository.url,
         url: repository.url,
+        webLink,
       },
     },
   });

@@ -82,12 +82,4 @@ export const userSteps: IntegrationStep<IntegrationConfig>[] = [
     dependsOn: [Steps.ACCOUNT],
     executionHandler: fetchUsers,
   },
-  {
-    id: Steps.BUILD_USER_ROLE_RELATIONSHIPS,
-    name: 'Build User and Role Relationships',
-    entities: [],
-    relationships: [Relationships.USER_ASSIGNED_ROLE],
-    dependsOn: [Steps.USER, Steps.ROLE],
-    executionHandler: buildUserAndRoleRelationships,
-  },
 ];

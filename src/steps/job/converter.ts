@@ -20,7 +20,7 @@ export function createJobEntity(project: JenkinsJob): Entity {
         _key: getJobKey(`${project.url}-${project.name}`),
         id: project.name,
         name: project.name,
-        url: project.url,
+        webLink: project.url,
       },
     },
   });

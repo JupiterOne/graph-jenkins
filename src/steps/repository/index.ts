@@ -40,7 +40,7 @@ export async function fetchRepositories({
         };
 
         const repositoryEntity = await jobState.addEntity(
-          createRepositoryEntity(repository),
+          createRepositoryEntity(repository, buildEntity.url as string),
         );
 
         await jobState.addRelationship(

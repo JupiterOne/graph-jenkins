@@ -15,7 +15,6 @@ export class APIClient {
 
   private baseUri = this.config.hostName;
   private withBaseUri = (path: string) => `${this.baseUri}${path}`;
-  private roleTypes = ['globalRoles', 'projectRoles', 'slaveRoles'];
   private perPage = 50;
 
   private checkStatus = (response: Response) => {
@@ -143,7 +142,7 @@ export class APIClient {
   ): Promise<void> {
     await this.paginatedGeneralRequest<JenkinsUser>(
       this.withBaseUri(
-        `/asynchPeople/api/json?tree=users[lastChange,project[name,url],user[absoluteUrl,fullName]]`,
+        `/asynchPeople/api/json?tree=users[lastChange,user[absoluteUrl,fullName]]`,
       ),
       'GET',
       'users',
@@ -187,24 +186,6 @@ export class APIClient {
 
   public async fetchBuildDetails(url: string): Promise<JenkinsBuild> {
     return await this.getRequest(`${url}/api/json`, 'GET');
-  }
-
-  public async listAllRoles(): Promise<any> {
-    const roleList: Array<string> = [];
-
-    for (const roleType of this.roleTypes) {
-      const roles = await this.getRequest(
-        this.withBaseUri(
-          `/role-strategy/strategy/getAllRoles?type=${roleType}`,
-        ),
-        'GET',
-      );
-      for (const role in roles) {
-        roleList.push(`${roleType}:${role}`);
-      }
-    }
-
-    return roleList;
   }
 
   public async getRoleMembers(role: JenkinsRole): Promise<any> {

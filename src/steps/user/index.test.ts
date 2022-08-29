@@ -19,16 +19,3 @@ test('fetch-users', async () => {
   const stepResult = await executeStepWithDependencies(stepConfig);
   expect(stepResult).toMatchStepMetadata(stepConfig);
 });
-
-test('build-user-and-role-relationships', async () => {
-  recording = setupProjectRecording({
-    directory: __dirname,
-    name: 'build-user-and-role-relationships',
-  });
-
-  const stepConfig = buildStepTestConfigForStep(
-    Steps.BUILD_USER_ROLE_RELATIONSHIPS,
-  );
-  const stepResult = await executeStepWithDependencies(stepConfig);
-  expect(stepResult).toMatchStepMetadata(stepConfig);
-});
