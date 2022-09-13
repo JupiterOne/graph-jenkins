@@ -16,7 +16,7 @@ import {
   Steps,
   ACCOUNT_ENTITY_KEY,
 } from '../constants';
-import { createUserEntity, getUserKey } from './converter';
+import { createUserEntity, getUserId, getUserKey } from './converter';
 
 export async function fetchUsers({
   instance,
@@ -26,14 +26,18 @@ export async function fetchUsers({
   const accountEntity = (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity;
 
   await apiClient.iterateUsers(async (user) => {
-    const userEntity = await jobState.addEntity(createUserEntity(user));
-    await jobState.addRelationship(
-      createDirectRelationship({
-        _class: RelationshipClass.HAS,
-        from: accountEntity,
-        to: userEntity,
-      }),
-    );
+    const hasUser = await jobState.hasKey(getUserKey(getUserId(user)));
+
+    if (!hasUser) {
+      const userEntity = await jobState.addEntity(createUserEntity(user));
+      await jobState.addRelationship(
+        createDirectRelationship({
+          _class: RelationshipClass.HAS,
+          from: accountEntity,
+          to: userEntity,
+        }),
+      );
+    }
   });
 }
 
