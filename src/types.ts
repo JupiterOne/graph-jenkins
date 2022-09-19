@@ -13,6 +13,21 @@ export type JenkinsJob = {
   name: string;
   url: string;
   color: string;
+  projectUrls: string[];
+};
+
+export type JenkinsJobConfig = {
+  project?: {
+    properties?: [
+      {
+        'com.coravy.hudson.plugins.github.GithubProjectProperty': [
+          {
+            projectUrl: string[];
+          },
+        ];
+      },
+    ];
+  };
 };
 
 export type JenkinsBuild = {

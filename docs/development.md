@@ -10,10 +10,12 @@ resources.
    domain
 2. Install recommended plugins
 3. Create an admin account on this installation
-4. Install Role-based Authorization Strategy Plugin
-5. Go to Dashboard -> Manage Jenkins -> Configure Global Security and choose
-   Role-Based Strategy for Authorization
-6. Go to Dashboard -> Configure and add a new API Token
+4. Go to Dashboard -> Configure and add a new API Token
+5. Go to Dashboard -> Configure -> Manage Plugins and add the
+   [Docker](https://plugins.jenkins.io/docker-plugin) and
+   [Docker Pipeline](https://plugins.jenkins.io/docker-workflow) plugins
+6. To push data from your Jenkins instance you must run our Docker container in
+   a pipeline. Here is an example:
 
 ## Authentication
 

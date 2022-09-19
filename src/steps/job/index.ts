@@ -1,6 +1,7 @@
 import {
   createDirectRelationship,
   Entity,
+  getRawData,
   IntegrationStep,
   IntegrationStepExecutionContext,
   RelationshipClass,
@@ -8,6 +9,7 @@ import {
 
 import { createAPIClient } from '../../client';
 import { IntegrationConfig } from '../../config';
+import { JenkinsJob, JenkinsJobConfig, JenkinsRepository } from '../../types';
 import {
   Entities,
   Relationships,
@@ -15,12 +17,35 @@ import {
   ACCOUNT_ENTITY_KEY,
 } from '../constants';
 
-import { createJobEntity } from './converter';
+import {
+  createJobEntity,
+  createRepositoryEntity,
+  getRepositoryKey,
+} from './converter';
 import { getJobKey } from './converter';
+
+function getJobRepos(jobConfig: JenkinsJobConfig): string[] {
+  if (jobConfig && jobConfig.project?.properties) {
+    for (const property of jobConfig.project.properties) {
+      if (
+        property['com.coravy.hudson.plugins.github.GithubProjectProperty'] &&
+        property['com.coravy.hudson.plugins.github.GithubProjectProperty']
+          .length > 0
+      ) {
+        return property[
+          'com.coravy.hudson.plugins.github.GithubProjectProperty'
+        ][0].projectUrl;
+      }
+    }
+  }
+
+  return [];
+}
 
 export async function fetchJobs({
   instance,
   jobState,
+  logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = createAPIClient(instance.config);
   const accountEntity = (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity;
@@ -37,7 +62,15 @@ export async function fetchJobs({
       return;
     }
 
-    const jobEntity = await jobState.addEntity(createJobEntity(job));
+    let repos: string[] = [];
+    try {
+      const jobConfig = await apiClient.fetchJobConfig(job.url);
+      repos = getJobRepos(jobConfig);
+    } catch (err) {
+      logger.warn({ job_url: job.url, error: err }, 'Could not get job config');
+    }
+
+    const jobEntity = await jobState.addEntity(createJobEntity(job, repos));
 
     //Treat multibranch projects as folders
     if (
@@ -67,7 +100,18 @@ export async function fetchJobs({
 
     if (folderUrl) {
       await apiClient.iterateSubJobs(async (job) => {
-        const jobEntity = await jobState.addEntity(createJobEntity(job));
+        let repos: string[] = [];
+        try {
+          const jobConfig = await apiClient.fetchJobConfig(job.url);
+          repos = getJobRepos(jobConfig);
+        } catch (err) {
+          logger.warn(
+            { job_url: job.url, error: err },
+            'Could not get job config',
+          );
+        }
+
+        const jobEntity = await jobState.addEntity(createJobEntity(job, repos));
 
         if (
           job._class == 'com.cloudbees.hudson.plugins.folder.Folder' ||
@@ -104,6 +148,62 @@ export async function fetchJobs({
   }
 }
 
+export async function fetchRepositories({
+  jobState,
+  logger,
+}: IntegrationStepExecutionContext<IntegrationConfig>) {
+  await jobState.iterateEntities(
+    { _type: Entities.JOB._type },
+    async (jobEntity) => {
+      const job = getRawData<JenkinsJob>(jobEntity);
+      if (!job) {
+        logger.warn(
+          { _key: jobEntity._key },
+          'Could not get raw data for job entity',
+        );
+        return;
+      }
+
+      if (job.projectUrls.length == 0) {
+        return;
+      }
+
+      for (const projectUrl of job.projectUrls) {
+        const hasRepositoryEntity = await jobState.findEntity(
+          getRepositoryKey(projectUrl),
+        );
+
+        if (hasRepositoryEntity) {
+          await jobState.addRelationship(
+            createDirectRelationship({
+              _class: RelationshipClass.HAS,
+              from: jobEntity,
+              to: hasRepositoryEntity,
+            }),
+          );
+        } else {
+          const repository: JenkinsRepository = {
+            url: projectUrl,
+            name: projectUrl,
+          };
+
+          const repositoryEntity = await jobState.addEntity(
+            createRepositoryEntity(repository, jobEntity.url as string),
+          );
+
+          await jobState.addRelationship(
+            createDirectRelationship({
+              _class: RelationshipClass.HAS,
+              from: jobEntity,
+              to: repositoryEntity,
+            }),
+          );
+        }
+      }
+    },
+  );
+}
+
 export const jobSteps: IntegrationStep<IntegrationConfig>[] = [
   {
     id: Steps.JOB,
@@ -112,5 +212,13 @@ export const jobSteps: IntegrationStep<IntegrationConfig>[] = [
     relationships: [Relationships.ACCOUNT_HAS_JOB, Relationships.JOB_HAS_JOB],
     dependsOn: [Steps.ACCOUNT],
     executionHandler: fetchJobs,
+  },
+  {
+    id: Steps.REPOSITORY,
+    name: 'Fetch Repositories',
+    entities: [Entities.REPOSITORY],
+    relationships: [Relationships.JOB_HAS_REPOSITORY],
+    dependsOn: [Steps.JOB],
+    executionHandler: fetchRepositories,
   },
 ];

@@ -19,3 +19,14 @@ test('fetch-jobs', async () => {
   const stepResult = await executeStepWithDependencies(stepConfig);
   expect(stepResult).toMatchStepMetadata(stepConfig);
 });
+
+test('fetch-repositories', async () => {
+  recording = setupProjectRecording({
+    directory: __dirname,
+    name: 'fetch-repositories',
+  });
+
+  const stepConfig = buildStepTestConfigForStep(Steps.REPOSITORY);
+  const stepResult = await executeStepWithDependencies(stepConfig);
+  expect(stepResult).toMatchStepMetadata(stepConfig);
+});

@@ -4,14 +4,25 @@ import {
   IntegrationProviderAuthenticationError,
 } from '@jupiterone/integration-sdk-core';
 import { retry } from '@lifeomic/attempt';
+import xml2js from 'xml2js';
 
 import { IntegrationConfig } from './config';
-import { JenkinsUser, JenkinsRole, JenkinsBuild, JenkinsJob } from './types';
+import {
+  JenkinsUser,
+  JenkinsRole,
+  JenkinsBuild,
+  JenkinsJob,
+  JenkinsJobConfig,
+} from './types';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
 
 export class APIClient {
-  constructor(readonly config: IntegrationConfig) {}
+  private xmlParser: xml2js.Parser;
+
+  constructor(readonly config: IntegrationConfig) {
+    this.xmlParser = new xml2js.Parser();
+  }
 
   private baseUri = this.config.hostName;
   private withBaseUri = (path: string) => `${this.baseUri}${path}`;
@@ -24,6 +35,59 @@ export class APIClient {
       throw new IntegrationProviderAPIError(response);
     }
   };
+
+  private async getXmlRequest(
+    endpoint: string,
+    method: 'GET',
+  ): Promise<Response> {
+    const auth =
+      'Basic ' +
+      Buffer.from(
+        `${this.config.userName}` + ':' + `${this.config.apiKey}`,
+      ).toString('base64');
+
+    try {
+      const options = {
+        method,
+        headers: {
+          Authorization: auth,
+        },
+      };
+
+      const response = await retry(
+        async () => {
+          const res: Response = await fetch(endpoint, options);
+          this.checkStatus(res);
+          return res;
+        },
+        {
+          delay: 5000,
+          factor: 2,
+          maxAttempts: 5,
+          minDelay: 100,
+          maxDelay: 500,
+          jitter: true,
+          handleError: (err, context) => {
+            if (
+              err.statusCode !== 429 ||
+              ([500, 502, 503].includes(err.statusCode) &&
+                context.attemptNum > 1)
+            ) {
+              context.abort();
+            }
+          },
+        },
+      );
+
+      return response.text();
+    } catch (err) {
+      throw new IntegrationProviderAPIError({
+        endpoint: endpoint,
+        status: err.status,
+        statusText: err.statusText,
+      });
+    }
+  }
 
   private async getRequest(endpoint: string, method: 'GET'): Promise<Response> {
     const auth =
@@ -171,6 +235,11 @@ export class APIClient {
       'jobs',
       iteratee,
     );
+  }
+
+  public async fetchJobConfig(jobUrl: string): Promise<JenkinsJobConfig> {
+    const response = await this.getXmlRequest(`${jobUrl}config.xml`, 'GET');
+    return this.xmlParser.parseStringPromise(response);
   }
 
   public async iterateBuilds(

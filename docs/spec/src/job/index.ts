@@ -34,4 +34,29 @@ export const jobSpec: StepSpec<IntegrationConfig>[] = [
     dependsOn: ['fetch-account'],
     implemented: true,
   },
+  {
+    /**
+     * ENDPOINT: <n/a>
+     * PATTERN: Fetch Entities
+     */
+    id: 'fetch-repository',
+    name: 'Fetch Repositories',
+    entities: [
+      {
+        resourceName: 'Repository',
+        _type: 'jenkins_repository',
+        _class: ['Repository'],
+      },
+    ],
+    relationships: [
+      {
+        _type: 'jenkins_job_has_repository',
+        sourceType: 'jenkins_job',
+        _class: RelationshipClass.HAS,
+        targetType: 'jenkins_repository',
+      },
+    ],
+    dependsOn: ['fetch-job'],
+    implemented: true,
+  },
 ];

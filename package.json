@@ -36,11 +36,13 @@
   },
   "devDependencies": {
     "@jupiterone/integration-sdk-core": "^8.8.0",
-    "@jupiterone/integration-sdk-testing": "^8.8.0"
+    "@jupiterone/integration-sdk-testing": "^8.8.0",
+    "@types/xml2js": "^0.4.11"
   },
   "dependencies": {
-    "@lifeomic/attempt": "^3.0.3",
     "@jupiterone/integration-sdk-dev-tools": "^8.8.0",
-    "node-fetch": "2"
+    "@lifeomic/attempt": "^3.0.3",
+    "node-fetch": "2",
+    "xml2js": "^0.4.23"
   }
 }

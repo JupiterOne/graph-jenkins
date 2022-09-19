@@ -112,7 +112,6 @@ The following entities are created:
 | Resources  | Entity `_type`       | Entity `_class` |
 | ---------- | -------------------- | --------------- |
 | Account    | `jenkins_account`    | `Account`       |
-| Build      | `jenkins_build`      | `Configuration` |
 | Job        | `jenkins_job`        | `Project`       |
 | Repository | `jenkins_repository` | `Repository`    |
 | User       | `jenkins_user`       | `User`          |
@@ -125,10 +124,8 @@ The following relationships are created:
 | --------------------- | --------------------- | --------------------- |
 | `jenkins_account`     | **HAS**               | `jenkins_job`         |
 | `jenkins_account`     | **HAS**               | `jenkins_user`        |
-| `jenkins_build`       | **HAS**               | `jenkins_repository`  |
-| `jenkins_job`         | **HAS**               | `jenkins_build`       |
 | `jenkins_job`         | **HAS**               | `jenkins_job`         |
-| `jenkins_user`        | **HAS**               | `jenkins_build`       |
+| `jenkins_job`         | **HAS**               | `jenkins_repository`  |
 
 <!--
 ********************************************************************************
