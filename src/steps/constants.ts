@@ -9,20 +9,12 @@ export const Steps = {
   ACCOUNT: 'fetch-account',
   JOB: 'fetch-job',
   USER: 'fetch-users',
-  // BUILD: 'fetch-build',
   REPOSITORY: 'fetch-repository',
   ROLE: 'fetch-roles',
-  // BUILD_USER_BUILD_RELATIONSHIPS: 'build-user-and-build-relationships',
-  // BUILD_USER_ROLE_RELATIONSHIPS: 'build-user-and-role-relationships',
 };
 
 export const Entities: Record<
-  | 'ACCOUNT'
-  | 'USER'
-  | 'REPOSITORY'
-  | 'ROLE'
-  // | 'BUILD'
-  | 'JOB',
+  'ACCOUNT' | 'USER' | 'REPOSITORY' | 'ROLE' | 'JOB',
   StepEntityMetadata
 > = {
   ACCOUNT: {
@@ -50,11 +42,6 @@ export const Entities: Record<
     _type: 'jenkins_role',
     _class: ['AccessRole'],
   },
-  // BUILD: {
-  //   resourceName: 'Build',
-  //   _type: 'jenkins_build',
-  //   _class: ['Configuration'],
-  // },
 };
 
 export const Relationships: Record<
@@ -62,11 +49,8 @@ export const Relationships: Record<
   | 'ACCOUNT_HAS_REPOSITORY'
   | 'ACCOUNT_HAS_ROLE'
   | 'USER_ASSIGNED_ROLE'
-  // | 'USER_HAS_BUILD'
   | 'ACCOUNT_HAS_JOB'
-  // | 'JOB_HAS_BUILD'
   | 'JOB_HAS_REPOSITORY'
-  // | 'BUILD_HAS_REPOSITORY'
   | 'JOB_HAS_JOB',
   StepRelationshipMetadata
 > = {
@@ -100,24 +84,6 @@ export const Relationships: Record<
     _class: RelationshipClass.ASSIGNED,
     targetType: Entities.ROLE._type,
   },
-  // USER_HAS_BUILD: {
-  //   _type: 'jenkins_user_has_build',
-  //   sourceType: Entities.USER._type,
-  //   _class: RelationshipClass.HAS,
-  //   targetType: Entities.BUILD._type,
-  // },
-  // JOB_HAS_BUILD: {
-  //   _type: 'jenkins_job_has_build',
-  //   sourceType: Entities.JOB._type,
-  //   _class: RelationshipClass.HAS,
-  //   targetType: Entities.BUILD._type,
-  // },
-  // BUILD_HAS_REPOSITORY: {
-  //   _type: 'jenkins_build_has_repository',
-  //   sourceType: Entities.BUILD._type,
-  //   _class: RelationshipClass.HAS,
-  //   targetType: Entities.REPOSITORY._type,
-  // },
   JOB_HAS_REPOSITORY: {
     _type: 'jenkins_job_has_repository',
     sourceType: Entities.JOB._type,

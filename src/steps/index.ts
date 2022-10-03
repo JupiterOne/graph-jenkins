@@ -1,13 +1,7 @@
 import { accountSteps } from './account';
 import { userSteps } from './user';
-// import { buildSteps } from './build';
 import { jobSteps } from './job';
 
-const integrationSteps = [
-  ...accountSteps,
-  ...jobSteps,
-  // ...buildSteps,
-  ...userSteps,
-];
+const integrationSteps = [...accountSteps, ...jobSteps, ...userSteps];
 
 export { integrationSteps };

@@ -10,7 +10,6 @@ import { IntegrationConfig } from './config';
 import {
   JenkinsUser,
   JenkinsRole,
-  JenkinsBuild,
   JenkinsJob,
   JenkinsJobConfig,
 } from './types';
@@ -160,33 +159,6 @@ export class APIClient {
     } while (numElements == this.perPage);
   }
 
-  private async paginatedBuildRequest<T>(
-    uri: string,
-    method: 'GET',
-    iteratee: ResourceIteratee<T>,
-  ): Promise<void> {
-    let buildLength = 0;
-    let start = 0;
-    let end = this.perPage;
-    do {
-      const response = await this.getRequest(
-        `${uri}tree=allBuilds[url]{${start},${end}}`,
-        method,
-      );
-
-      for (const item of response.allBuilds || []) {
-        await iteratee(item);
-      }
-
-      if (response.allBuilds) {
-        buildLength = response.allBuilds.length;
-      }
-
-      start = end;
-      end += this.perPage;
-    } while (buildLength);
-  }
-
   public async verifyAuthentication(): Promise<void> {
     const uri = this.withBaseUri(`/api/json`);
     try {
@@ -242,21 +214,6 @@ export class APIClient {
     return this.xmlParser.parseStringPromise(response);
   }
 
-  public async iterateBuilds(
-    iteratee: ResourceIteratee<JenkinsBuild>,
-    projectUrl: string,
-  ): Promise<void> {
-    await this.paginatedBuildRequest<JenkinsBuild>(
-      `${projectUrl}api/json?`,
-      'GET',
-      iteratee,
-    );
-  }
-
-  public async fetchBuildDetails(url: string): Promise<JenkinsBuild> {
-    return await this.getRequest(`${url}/api/json`, 'GET');
-  }
-
   public async getRoleMembers(role: JenkinsRole): Promise<any> {
     const request = await this.getRequest(
       this.withBaseUri(
@@ -265,22 +222,6 @@ export class APIClient {
       'GET',
     );
     return request.sids;
-  }
-
-  public async getRoleDetails(role: string): Promise<JenkinsRole> {
-    const colonIndex = role.lastIndexOf(':');
-    const roleName = role.substring(colonIndex + 1);
-    const roleType = role.substring(0, colonIndex);
-
-    const request = await this.getRequest(
-      this.withBaseUri(
-        `/role-strategy/strategy/getRole?type=${roleType}&roleName=${roleName}`,
-      ),
-      'GET',
-    );
-    request.name = roleName;
-    request.roleType = `${roleType}`;
-    return request;
   }
 }
 

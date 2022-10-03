@@ -30,17 +30,6 @@ export type JenkinsJobConfig = {
   };
 };
 
-export type JenkinsBuild = {
-  _class: string;
-  id: string;
-  url: string;
-  remoteUrl: string;
-  startedByUserId: string;
-  name: string;
-
-  actions;
-};
-
 export type JenkinsRepository = {
   url: string;
   name: string;
