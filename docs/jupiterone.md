@@ -1,21 +1,16 @@
-# {{provider}} Integration with JupiterOne
+# Jenkins Integration with JupiterOne
 
-## {{provider}} + JupiterOne Integration Benefits
+## Jenkins + JupiterOne Integration Benefits
 
-TODO: Iterate the benefits of ingesting data from the provider into JupiterOne.
-Consider the following examples:
-
-- Visualize {{provider}} services, teams, and users in the JupiterOne graph.
-- Map {{provider}} users to employees in your JupiterOne account.
-- Monitor changes to {{provider}} users using JupiterOne alerts.
+- Visualize Jenkins users, jobs, builds and repositories in the JupiterOne
+  graph.
+- Map Jenkins users to employees in your JupiterOne account.
+- Monitor changes to Jenkins users using JupiterOne alerts.
 
 ## How it Works
 
-TODO: Iterate significant activities the integration enables. Consider the
-following examples:
-
-- JupiterOne periodically fetches services, teams, and users from {{provider}}
-  to update the graph.
+- JupiterOne periodically fetches users, jobs, builds and repositories from
+  Jenkins to update the graph.
 - Write JupiterOne queries to review and monitor updates to the graph, or
   leverage existing queries.
 - Configure alerts to take action when JupiterOne graph changes, or leverage
@@ -23,13 +18,9 @@ following examples:
 
 ## Requirements
 
-TODO: Iterate requirements for setting up the integration. Consider the
-following examples:
-
-- {{provider}} supports the OAuth2 Client Credential flow. You must have a
-  Administrator user account.
+- Jenkins Basic Authorization.
 - JupiterOne requires a REST API key. You need permission to create a user in
-  {{provider}} that will be used to obtain the API key.
+  Jenkins that will be used to obtain the API key.
 - You must have permission in JupiterOne to install new integrations.
 
 ## Support
@@ -39,42 +30,64 @@ If you need help with this integration, please contact
 
 ## Integration Walkthrough
 
-### In {{provider}}
+### In Jenkins
 
-TODO: List specific actions that must be taken in the provider. Remove this
-section when there are no actions to take in the provider.
+1. Install Jenkins on the local machine/server and take note of the provided
+   domain
+2. Install recommended plugins
+3. Create an admin account on this installation
+4. Go to Dashboard -> Configure and add a new API Token
+5. Go to Dashboard -> Configure -> Manage Plugins and add the
+   [Docker](https://plugins.jenkins.io/docker-plugin) and
+   [Docker Pipeline](https://plugins.jenkins.io/docker-workflow) plugins
+6. To push data from your Jenkins instance you must run our Docker container in
+   a pipeline. Here is an example:
 
-1. [Generate a REST API key](https://example.com/docs/generating-api-keys)
+```
+pipeline {
+    agent {
+        docker { image 'jupiterone/graph-jenkins:<version>' }
+    }
+
+    environment {
+        JUPITERONE_API_KEY = credentials('j1-api-key')
+        JUPITERONE_ACCOUNT = credentials('j1-account')
+        USER_NAME = credentials('jenkins-username')
+        API_KEY   = credentials('jenkins-api-key')
+        HOST_NAME = 'https://<your_hostname>'
+    }
+
+    stages {
+        stage('Collect data') {
+            steps {
+                sh 'cd /opt/jupiterone/integration && ./scripts/collect.sh'
+            }
+        }
+    }
+}
+```
 
 ### In JupiterOne
 
-TODO: List specific actions that must be taken in JupiterOne. Many of the
-following steps will be reusable; take care to be sure they remain accurate.
-
 1. From the configuration **Gear Icon**, select **Integrations**.
-2. Scroll to the **{{provider}}** integration tile and click it.
+2. Scroll to the **Jenkins** integration tile and click it.
 3. Click the **Add Configuration** button and configure the following settings:
 
-- Enter the **Account Name** by which you'd like to identify this {{provider}}
+- Enter the **Account Name** by which you'd like to identify this Jenkins
   account in JupiterOne. Ingested entities will have this value stored in
   `tag.AccountName` when **Tag with Account Name** is checked.
 - Enter a **Description** that will further assist your team when identifying
   the integration instance.
 - Select a **Polling Interval** that you feel is sufficient for your monitoring
   needs. You may leave this as `DISABLED` and manually execute the integration.
-- {{additional provider-specific settings}} Enter the **{{provider}} API Key**
-  generated for use by JupiterOne.
+- Enter the **Jenkins API Key** generated for use by JupiterOne.
 
 4. Click **Create Configuration** once all values are provided.
 
 # How to Uninstall
 
-TODO: List specific actions that must be taken to uninstall the integration.
-Many of the following steps will be reusable; take care to be sure they remain
-accurate.
-
 1. From the configuration **Gear Icon**, select **Integrations**.
-2. Scroll to the **{{provider}}** integration tile and click it.
+2. Scroll to the **Jenkins** integration tile and click it.
 3. Identify and click the **integration to delete**.
 4. Click the **trash can** icon.
 5. Click the **Remove** button to delete the integration.
@@ -96,11 +109,12 @@ https://github.com/JupiterOne/sdk/blob/main/docs/integrations/development.md
 
 The following entities are created:
 
-| Resources | Entity `_type` | Entity `_class` |
-| --------- | -------------- | --------------- |
-| Account   | `acme_account` | `Account`       |
-| User      | `acme_user`    | `User`          |
-| UserGroup | `acme_group`   | `UserGroup`     |
+| Resources  | Entity `_type`       | Entity `_class` |
+| ---------- | -------------------- | --------------- |
+| Account    | `jenkins_account`    | `Account`       |
+| Job        | `jenkins_job`        | `Project`       |
+| Repository | `jenkins_repository` | `Repository`    |
+| User       | `jenkins_user`       | `User`          |
 
 ### Relationships
 
@@ -108,9 +122,10 @@ The following relationships are created:
 
 | Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
 | --------------------- | --------------------- | --------------------- |
-| `acme_account`        | **HAS**               | `acme_group`          |
-| `acme_account`        | **HAS**               | `acme_user`           |
-| `acme_group`          | **HAS**               | `acme_user`           |
+| `jenkins_account`     | **HAS**               | `jenkins_job`         |
+| `jenkins_account`     | **HAS**               | `jenkins_user`        |
+| `jenkins_job`         | **HAS**               | `jenkins_job`         |
+| `jenkins_job`         | **HAS**               | `jenkins_repository`  |
 
 <!--
 ********************************************************************************

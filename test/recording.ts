@@ -11,13 +11,21 @@ export function setupProjectRecording(
   input: Omit<SetupRecordingInput, 'mutateEntry'>,
 ): Recording {
   return setupRecording({
-    ...input,
+    //...input,
     redactedRequestHeaders: ['Authorization'],
     redactedResponseHeaders: ['set-cookie'],
     mutateEntry: mutations.unzipGzippedRecordingEntry,
     /*mutateEntry: (entry) => {
       redact(entry);
     },*/
+    options: {
+      matchRequestsBy: {
+        url: {
+          hostname: false,
+        },
+      },
+    },
+    ...input,
   });
 }
 
