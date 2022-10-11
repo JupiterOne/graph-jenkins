@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## 1.0.0 - 2022-10-11
+
 - Ingest new entities
   - `jenkins_account`
   - `jenkins_build`
